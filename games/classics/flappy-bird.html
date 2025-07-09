@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Flappy Bird - Premium Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            touch-action: manipulation; /* Disables double-tap to zoom on mobile */
+        }
+        .text-shadow {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .gradient-background {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-primary': '#FFD700',
+                        'brand-secondary': '#FF8C00',
+                        'brand-success': '#22C55E',
+                        'brand-danger': '#EF4444',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="gradient-background text-white min-h-screen flex items-center justify-center p-4">
+    <div class="container mx-auto max-w-lg">
+        <div class="text-center mb-6">
+            <h1 class="text-5xl font-bold text-shadow mb-2">Flappy Bird</h1>
+            <a href="../../index.html" class="text-blue-200 hover:text-white transition duration-300">← Back to Portfolio</a>
+        </div>
+
+        <div class="relative">
+            <div id="ui-container" class="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
+                <div class="text-center text-white text-shadow">
+                    <div id="score-display" class="text-6xl font-bold mb-4 hidden">0</div>
+                    <div id="instructions" class="text-lg hidden">Tap or press Space to flap</div>
+                </div>
+
+                <div id="start-screen" class="text-center mt-8 pointer-events-auto">
+                    <button id="startBtn" class="bg-brand-success text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:bg-green-500 transform hover:scale-105 transition duration-300">
+                        Start Game
+                    </button>
+                </div>
+
+                <div id="game-over-screen" class="hidden text-center mt-8 p-6 bg-white/20 backdrop-blur-md rounded-2xl shadow-xl fade-in pointer-events-auto">
+                    <div class="text-4xl font-bold mb-2">Game Over!</div>
+                    <div class="text-xl mb-4">Final Score: <span id="finalScore">0</span></div>
+                    <button id="restartBtn" class="bg-blue-500 text-white px-6 py-2 rounded-full font-semibold shadow-lg hover:bg-blue-600 transform hover:scale-105 transition duration-300">
+                        Play Again
+                    </button>
+                </div>
+            </div>
+            <canvas id="gameCanvas" width="400" height="600" class="rounded-2xl shadow-2xl mx-auto block"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // UI Elements
+        const uiContainer = document.getElementById('ui-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const finalScore = document.getElementById('finalScore');
+        const instructions = document.getElementById('instructions');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+
+        let gameState = 'waiting'; // waiting, playing, gameOver
+        let score = 0;
+        let bird, pipes, gravity, jumpStrength, pipeWidth, pipeGap, pipeSpeed, frame;
+        let gameHasStarted = false; // Tracks if the first flap has happened
+
+        function initializeGameVariables() {
+            bird = { x: 80, y: 250, velocity: 0, width: 34, height: 24, rotation: 0 };
+            pipes = [];
+            gravity = 0.4;
+            jumpStrength = -8;
+            pipeWidth = 80;
+            pipeGap = 180;
+            pipeSpeed = 3;
+            score = 0;
+            frame = 0;
+            gameHasStarted = false;
+        }
+
+        // Sprites
+        const birdSprite = {
+            draw: () => {
+                ctx.save();
+                ctx.translate(bird.x, bird.y);
+                ctx.rotate(bird.rotation);
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(0, 0, 15, 0, Math.PI * 2, true);
+                ctx.fill();
+                ctx.fillStyle = '#FFB300';
+                ctx.beginPath();
+                ctx.arc(-5, 0, 8, 0, Math.PI, false);
+                ctx.fill();
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(5, -3, 4, 0, Math.PI * 2, true);
+                ctx.fill();
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(6, -3, 2, 0, Math.PI * 2, true);
+                ctx.fill();
+                ctx.restore();
+            }
+        };
+
+        function drawPipes() {
+            ctx.fillStyle = '#2E8B57';
+            pipes.forEach(pipe => {
+                ctx.fillRect(pipe.x, 0, pipeWidth, pipe.top);
+                ctx.fillRect(pipe.x, pipe.bottom, pipeWidth, canvas.height - pipe.bottom);
+            });
+        }
+
+        function drawBackground() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(1, '#E0F6FF');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#A0522D';
+            ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(0, canvas.height - 45, canvas.width, 5);
+        }
+
+        function updateBird() {
+            if (!gameHasStarted) return; // Don't apply gravity until the first flap
+            bird.velocity += gravity;
+            bird.y += bird.velocity;
+            bird.rotation = Math.min(Math.max(-0.3, bird.velocity / 20), 0.7);
+        }
+
+        function updatePipes() {
+            if (!gameHasStarted) return;
+            frame++;
+            pipes.forEach(pipe => {
+                pipe.x -= pipeSpeed;
+            });
+            pipes = pipes.filter(pipe => pipe.x + pipeWidth > 0);
+            if (frame % 90 === 0) {
+                const pipeTop = Math.random() * (canvas.height - pipeGap - 200) + 100;
+                pipes.push({ x: canvas.width, top: pipeTop, bottom: pipeTop + pipeGap, scored: false });
+            }
+        }
+
+        function checkCollisions() {
+            if (bird.y + 15 > canvas.height - 50 || bird.y - 15 < 0) {
+                return true;
+            }
+            for (let pipe of pipes) {
+                if (bird.x + 15 > pipe.x && bird.x - 15 < pipe.x + pipeWidth && (bird.y - 15 < pipe.top || bird.y + 15 > pipe.bottom)) {
+                    return true;
+                }
+                if (!pipe.scored && pipe.x + pipeWidth < bird.x - 15) {
+                    pipe.scored = true;
+                    score++;
+                    scoreDisplay.textContent = score;
+                }
+            }
+            return false;
+        }
+
+        function gameLoop() {
+            if (gameState !== 'playing') return;
+            drawBackground();
+            updatePipes();
+            drawPipes();
+            updateBird();
+            birdSprite.draw();
+            if (gameHasStarted && checkCollisions()) {
+                endGame();
+                return;
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        function jump() {
+            if (gameState === 'playing') {
+                if (!gameHasStarted) {
+                    gameHasStarted = true;
+                    instructions.classList.add('hidden'); // Hide instructions
+                    scoreDisplay.classList.remove('hidden'); // Show score
+                }
+                bird.velocity = jumpStrength;
+            }
+        }
+
+        function showUI(state) {
+            startScreen.classList.toggle('hidden', state !== 'waiting');
+            gameOverScreen.classList.toggle('hidden', state !== 'gameOver');
+            
+            // Only show instructions when game is in 'playing' state but hasn't had the first flap yet
+            instructions.classList.toggle('hidden', state !== 'playing' || gameHasStarted);
+            // Hide score display unless the game is playing AND has started
+            scoreDisplay.classList.toggle('hidden', !(state === 'playing' && gameHasStarted));
+
+             if (state === 'waiting') {
+                uiContainer.classList.remove('pointer-events-none');
+            }
+        }
+
+        function startGame() {
+            gameState = 'playing';
+            initializeGameVariables();
+            scoreDisplay.textContent = '0';
+            
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            instructions.classList.remove('hidden');
+            scoreDisplay.classList.add('hidden');
+
+            uiContainer.classList.add('pointer-events-none'); // Allow clicks on canvas
+
+            gameLoop();
+        }
+
+        function endGame() {
+            gameState = 'gameOver';
+            finalScore.textContent = score;
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.remove('hidden');
+            instructions.classList.add('hidden');
+            scoreDisplay.classList.add('hidden');
+            uiContainer.classList.remove('pointer-events-none');
+        }
+
+        function resetGame() {
+            gameState = 'waiting';
+            initializeGameVariables();
+            drawBackground();
+            birdSprite.draw();
+            startScreen.classList.remove('hidden');
+            gameOverScreen.classList.add('hidden');
+            instructions.classList.add('hidden');
+            scoreDisplay.classList.add('hidden');
+            uiContainer.classList.remove('pointer-events-none');
+        }
+
+        // Event listeners
+        canvas.addEventListener('mousedown', jump); // Use mousedown for faster response
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); }, { passive: false });
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.key === ' ') {
+                e.preventDefault();
+                jump();
+            }
+        });
+        startBtn.addEventListener('click', (e) => { e.stopPropagation(); startGame(); });
+        restartBtn.addEventListener('click', (e) => { e.stopPropagation(); startGame(); });
+
+        window.onload = () => {
+            const aspectRatio = 600 / 400;
+            let newWidth = Math.min(400, window.innerWidth - 30);
+            canvas.width = newWidth;
+            canvas.height = newWidth * aspectRatio;
+            resetGame();
+        };
+    </script>
+</body>
+</html>
