@@ -1,125 +1,198 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Saikat | Lawyer & Coder</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Code:400,700&display=swap">
+  <meta name="description" content="Saikat - A lawyer by profession and coder by passion, specializing in legal tech and automation.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap">
   <style>
+    :root {
+      --primary-color: #00fff9;
+      --secondary-color: #ff00a0;
+      --dark-bg: #0f2027;
+      --darker-bg: #2c5364;
+      --card-bg: #1a1a2e;
+      --text-color: #fff;
+    }
+    
     body {
-      background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
-      color: #fff;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
+      color: var(--text-color);
       font-family: 'Fira Code', monospace;
       margin: 0;
       padding: 0;
       min-height: 100vh;
+      line-height: 1.6;
     }
+    
     .container {
       max-width: 900px;
       margin: 0 auto;
       padding: 40px 20px;
     }
+    
     .header {
       text-align: center;
       margin-bottom: 40px;
     }
+    
     .avatar {
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      border: 3px solid #00fff9;
+      border: 3px solid var(--primary-color);
       margin-bottom: 20px;
       object-fit: cover;
-      box-shadow: 0 0 30px #00fff9;
+      box-shadow: 0 0 30px var(--primary-color);
     }
+    
     h1 {
       font-size: 2.8rem;
-      color: #00fff9;
+      color: var(--primary-color);
       margin: 0 0 10px 0;
+      line-height: 1.2;
     }
+    
     h2 {
-      color: #ff00a0;
+      color: var(--secondary-color);
       margin-top: 40px;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       font-size: 1.5rem;
-      border-left: 4px solid #00fff9;
+      border-left: 4px solid var(--primary-color);
       padding-left: 10px;
     }
+    
     .badges {
       margin: 20px 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
     }
+    
     .badge {
-      display: inline-block;
-      background: #1a1a2e;
-      color: #00fff9;
+      background: var(--card-bg);
+      color: var(--primary-color);
       border-radius: 20px;
       padding: 8px 18px;
-      margin: 0 6px 8px 0;
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: bold;
       letter-spacing: 1px;
-      border: 1px solid #00fff9;
-      box-shadow: 0 0 8px #00fff977;
+      border: 1px solid var(--primary-color);
+      box-shadow: 0 0 8px rgba(0, 255, 249, 0.47);
+      white-space: nowrap;
     }
+    
     .section {
       margin-bottom: 30px;
-      line-height: 1.7;
     }
+    
     .skills {
       display: flex;
       flex-wrap: wrap;
-      gap: 16px;
+      gap: 10px;
       margin-top: 10px;
     }
+    
     .skill {
       background: #23234b;
-      color: #fff;
+      color: var(--text-color);
       padding: 8px 16px;
       border-radius: 12px;
-      border: 1px solid #00fff9;
-      box-shadow: 0 0 8px #00fff966;
-      font-size: 1rem;
-      margin-bottom: 8px;
+      border: 1px solid var(--primary-color);
+      box-shadow: 0 0 8px rgba(0, 255, 249, 0.4);
+      font-size: 0.9rem;
     }
+    
     .links {
       text-align: center;
       margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
     }
+    
     .links a {
-      display: inline-block;
-      margin: 0 10px;
       padding: 12px 28px;
       border-radius: 30px;
-      background: linear-gradient(90deg, #00fff9, #ff00a0);
-      color: #fff;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      color: var(--text-color);
       text-decoration: none;
       font-weight: bold;
-      font-size: 1.1rem;
-      box-shadow: 0 0 14px #00fff988;
-      transition: background 0.3s, box-shadow 0.3s;
+      font-size: 1rem;
+      box-shadow: 0 0 14px rgba(0, 255, 249, 0.53);
+      transition: transform 0.3s, box-shadow 0.3s;
     }
+    
     .links a:hover {
-      background: linear-gradient(90deg, #ff00a0, #00fff9);
-      box-shadow: 0 0 24px #ff00a088;
+      background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+      box-shadow: 0 0 24px rgba(255, 0, 160, 0.53);
+      transform: translateY(-2px);
     }
+    
     .footer {
       text-align: center;
       margin-top: 50px;
-      color: #00fff9bb;
-      font-size: 1rem;
-      letter-spacing: 2px;
+      color: rgba(0, 255, 249, 0.73);
+      font-size: 0.9rem;
+      letter-spacing: 1px;
     }
-    @media (max-width: 600px) {
-      .container { padding: 20px 5px; }
-      h1 { font-size: 2rem; }
+    
+    ul {
+      padding-left: 20px;
+    }
+    
+    li {
+      margin-bottom: 8px;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 15px;
+      }
+      
+      h1 {
+        font-size: 2.2rem;
+      }
+      
+      .avatar {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .links {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .links a {
+        width: 80%;
+        max-width: 250px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      h2 {
+        font-size: 1.3rem;
+      }
+      
+      .badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <img src="https://avatars.githubusercontent.com/u/10508016?v=4" alt="Saikat Avatar" class="avatar">
+      <img src="https://avatars.githubusercontent.com/u/10508016?v=4" alt="Saikat's profile picture" class="avatar">
       <h1>Saikat</h1>
       <div class="badges">
         <span class="badge">⚖️ Full-Time Lawyer</span>
@@ -127,8 +200,8 @@
         <span class="badge">🤖 Bot Creator</span>
         <span class="badge">🍿 Movie & Anime Buff</span>
       </div>
-      <p style="color:#fff;max-width:600px;margin:0 auto;font-size:1.2rem;">
-        Bridging the worlds of <span style="color:#00fff9;">law</span> and <span style="color:#ff00a0;">technology</span>.  
+      <p style="max-width:600px;margin:20px auto 0;font-size:1.1rem;">
+        Bridging the worlds of <span style="color:var(--primary-color);">law</span> and <span style="color:var(--secondary-color);">technology</span>.  
         I automate, innovate, and create digital solutions—one bot at a time.
       </p>
     </div>
@@ -136,7 +209,7 @@
     <div class="section">
       <h2>🚀 About Me</h2>
       <p>
-        Hi, I’m <b>Saikat</b> — a lawyer by profession, coder by passion, and a lifelong learner.  
+        Hi, I'm <b>Saikat</b> — a lawyer by profession, coder by passion, and a lifelong learner.  
         I specialize in legal tech, automation, and building Telegram bots that make life easier and more fun.
       </p>
     </div>
@@ -176,8 +249,8 @@
     <div class="section">
       <h2>🌐 Connect with Me</h2>
       <div class="links">
-        <a href="https://t.me/AnnihilusOP" target="_blank">Telegram</a>
-        <a href="https://github.com/saikatwtf" target="_blank">GitHub</a>
+        <a href="https://t.me/AnnihilusOP" target="_blank" rel="noopener noreferrer">Telegram</a>
+        <a href="https://github.com/saikatwtf" target="_blank" rel="noopener noreferrer">GitHub</a>
       </div>
     </div>
 
